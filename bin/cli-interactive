@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2068,SC2086,SC2091
+
+set -uo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+/usr/bin/env | grep -E 'AWS.*' > "/tmp/$(basename $0).vars"
+/usr/bin/env | grep -E 'gsutil.*' > "/tmp/$(basename $0).vars"
+
+set -e
+
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/common"
+
+# the --sysctl argument avoids https://github.com/kubernetes/helm/issues/2223
+"$DOCKERBIN" run -it --rm \
+  --sysctl net.ipv6.conf.all.disable_ipv6=0 \
+  --env-file "/tmp/$(basename $0).vars" \
+  -e HOME="$HOME" \
+  -v "$HOME:$HOME" \
+  -w "$(pwd)" \
+  --net HM \
+  arunshetty33/arun-cli:latest \
+  bash

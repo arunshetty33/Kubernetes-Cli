@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2068,SC2086,SC2091
+
+test -d "$HOME/.aws"  || mkdir -p "$HOME/.aws"
+test -d "$HOME/.kube" || mkdir -p "$HOME/.kube"
+test -d "$HOME/.ssh"  || mkdir -p "$HOME/.ssh"
+test -d "$HOME/.gsutil"  || mkdir -p "$HOME/.gsutil"
+
+DOCKERBIN="$(command -v docker)"
+export DOCKERBIN
+
+# if argument is upgrade-tools login to the registry and pull latest image
+if [[ "${1:-}" == "upgrade-tools" ]]; then
+  "$DOCKERBIN" pull arunshetty33/arun-cli:latest
+  exit 0
+fi
+
+if ! "$DOCKERBIN" network ls | grep HM > /dev/null; then
+	echo "Creating 'HM' local docker network"
+	docker network create -d bridge --subnet 192.168.202.0/24 --gateway 192.168.202.1 HM
+fi
+
+(>&2 echo "executing $(basename $0) from docker")

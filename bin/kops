@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2068,SC2086,SC2091
+
+set -uo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+/usr/bin/env | grep -E 'AWS.*|KOPS.*' > "/tmp/$(basename $0).vars"
+/usr/bin/env | grep -E 'gsutil.*' > "/tmp/$(basename $0).vars"
+
+set -e
+
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/common"
+
+if [[ "${1:-}" == "completion" ]]; then
+  INTERACTIVE=""
+else
+  INTERACTIVE="-it"
+fi
+
+# kops requires being interactive because of 'kops edit'
+"$DOCKERBIN" run $INTERACTIVE --rm \
+  --env-file "/tmp/$(basename $0).vars" \
+  -e HOME="$HOME" \
+  -v "$HOME:$HOME" \
+  -w "$(pwd)" \
+  arunshetty33/arun-cli:latest \
+  "$(basename $0)" $@
