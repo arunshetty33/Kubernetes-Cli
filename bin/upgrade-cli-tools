@@ -13,6 +13,6 @@ set -e
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/common"
 
-"$DOCKERBIN" pull arunshetty33/arun-cli:latest
+"$DOCKERBIN" pull arunshetty33/arun-cli-gcloud:latest
 
 exit 0

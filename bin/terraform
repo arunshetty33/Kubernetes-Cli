@@ -18,5 +18,5 @@ source "$SCRIPT_DIR/common"
   -e HOME="$HOME" \
   -v "$HOME:$HOME" \
   -w "$(pwd)" \
-  arunshetty33/arun-cli:latest \
+  arunshetty33/arun-cli-gcloud:latest \
   "$(basename $0)" $@

@@ -3,7 +3,6 @@ FROM golang:1.8-alpine as builder
 ENV HELM_HOME=/opt/helm
 ENV HELM_PLUGIN=/opt/helm/plugins
 ENV TILLER_NAMESPACE=kube-system
-
 ENV CACHE_BUSTER=1
 
 RUN apk --no-cache add \
@@ -19,8 +18,8 @@ RUN apk --no-cache add \
 # Helm and plugins were eating up a bunch of space on the image that we don't actually need in the end
 RUN \
   mkdir -p /tmp/helm && cd /tmp/helm && \
-  wget -q https://storage.googleapis.com/kubernetes-helm/helm-v2.7.2-linux-amd64.tar.gz -O helm-v2.7.2-linux-amd64.tar.gz && \
-  tar -xvzf /tmp/helm/helm-v2.7.2-linux-amd64.tar.gz && \
+  wget -q https://storage.googleapis.com/kubernetes-helm/helm-v2.8.1-linux-amd64.tar.gz -O helm-v2.8.1-linux-amd64.tar.gz && \
+  tar -xvzf /tmp/helm/helm-v2.8.1-linux-amd64.tar.gz && \
   mv linux-amd64/helm /usr/local/bin/helm && \
   cd / && rm -rf /tmp/helm
 
@@ -44,6 +43,8 @@ ENV HELM_PLUGIN=/opt/helm/plugins
 ENV TILLER_NAMESPACE=kube-system
 ENV TF_PLUGIN_CACHE_DIR=/opt/terraform/plugins
 ENV TERRAGRUNT_SOURCE_UPDATE=true
+ARG CLOUD_SDK_VERSION=202.0.0
+ENV PATH /google-cloud-sdk/bin:$PATH
 
 RUN apk --no-cache add \
   bash \
@@ -53,6 +54,9 @@ RUN apk --no-cache add \
   jq \
   ca-certificates \
   make \
+  python \
+  py-crcmod \
+  libc6-compat \
   file
 
 RUN \
@@ -78,18 +82,23 @@ RUN \
   mv ark /usr/local/bin/ark && \
   chmod a+x /usr/local/bin/ark && \
   rm ark-v0.7.1-linux-amd64.tar.gz
-<<<<<<< HEAD
 
 RUN \
-  wget -q https://github.com/jenkins-x/jx/releases/download/v1.2.69/jx-linux-amd64.tar.gz && \
+  wget -q https://github.com/jenkins-x/jx/releases/download/v1.2.88/jx-linux-amd64.tar.gz && \
   tar -xvzf jx-linux-amd64.tar.gz && \
   mv jx /usr/local/bin/jx && \
   chmod a+x /usr/local/bin/jx
 
+RUN \
+    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    ln -s /lib /lib64 && \
+    gcloud config set core/disable_usage_reporting true && \
+    gcloud config set component_manager/disable_update_check true && \
+    gcloud config set metrics/environment github_docker_image
+VOLUME ["/root/.config"]
 
-=======
-  
->>>>>>> 46811a7b4a32695d3c0aac8f151a6604c9898b53
 COPY --from=builder /usr/local/bin/helm /usr/local/bin/helm
 
 COPY --from=builder /opt/helm/plugins/helm-diff /opt/helm/plugins/helm-diff

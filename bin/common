@@ -11,7 +11,7 @@ export DOCKERBIN
 
 # if argument is upgrade-tools login to the registry and pull latest image
 if [[ "${1:-}" == "upgrade-tools" ]]; then
-  "$DOCKERBIN" pull arunshetty33/arun-cli:latest
+  "$DOCKERBIN" pull arunshetty33/arun-cli-gcloud:latest
   exit 0
 fi
 
